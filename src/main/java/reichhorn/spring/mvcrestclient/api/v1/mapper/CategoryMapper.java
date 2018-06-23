@@ -5,7 +5,7 @@ import org.mapstruct.factory.Mappers;
 import reichhorn.spring.mvcrestclient.api.v1.model.CategoryDTO;
 import reichhorn.spring.mvcrestclient.model.Category;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);

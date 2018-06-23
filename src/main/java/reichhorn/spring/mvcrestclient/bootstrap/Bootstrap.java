@@ -3,15 +3,19 @@ package reichhorn.spring.mvcrestclient.bootstrap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import reichhorn.spring.mvcrestclient.model.Category;
+import reichhorn.spring.mvcrestclient.model.Customer;
 import reichhorn.spring.mvcrestclient.repositories.CategoryRepository;
+import reichhorn.spring.mvcrestclient.repositories.CustomerRepository;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
 
     private CategoryRepository categoryRepository;
+    private CustomerRepository customerRepository;
 
-    public Bootstrap(CategoryRepository categoryRepository) {
+    public Bootstrap(CategoryRepository categoryRepository, CustomerRepository customerRepository) {
         this.categoryRepository = categoryRepository;
+        this.customerRepository = customerRepository;
     }
 
 
@@ -20,6 +24,11 @@ public class Bootstrap implements CommandLineRunner {
         // CommandLineRunner is specific to Spring Boot and runs on startup
         // and can also work with arguments passed in by the JVM
 
+        initCategories();
+        initCustomers();
+    }
+
+    private void initCategories() {
         Category fruits = new Category();
         fruits.setName("Fruits");
 
@@ -41,6 +50,29 @@ public class Bootstrap implements CommandLineRunner {
         categoryRepository.save(exotic);
         categoryRepository.save(nuts);
 
-        System.out.println("Data Loaded: " + categoryRepository.count() + " records");
+        System.out.println(categoryRepository.count() + " Categories loaded");
+    }
+
+    private void initCustomers() {
+        Customer jon = new Customer();
+        jon.setId(1L);
+        jon.setFirstname("Jon");
+        jon.setLastname("Doe");
+
+        Customer alice = new Customer();
+        alice.setId(2L);
+        alice.setFirstname("Alice");
+        alice.setLastname("Wonder");
+
+        Customer bob = new Customer();
+        bob.setId(3L);
+        bob.setFirstname("Bob");
+        bob.setLastname("Baumeister");
+
+        customerRepository.save(jon);
+        customerRepository.save(alice);
+        customerRepository.save(bob);
+
+        System.out.println(customerRepository.count() + " Customers loaded");
     }
 }

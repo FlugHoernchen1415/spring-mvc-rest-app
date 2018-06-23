@@ -5,4 +5,5 @@ import reichhorn.spring.mvcrestclient.model.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
+    Category findCategoryByName(String name);
 }
