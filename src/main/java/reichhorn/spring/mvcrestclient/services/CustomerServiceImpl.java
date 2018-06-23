@@ -3,6 +3,7 @@ package reichhorn.spring.mvcrestclient.services;
 import org.springframework.stereotype.Service;
 import reichhorn.spring.mvcrestclient.api.v1.mapper.CustomerMapper;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerDTO;
+import reichhorn.spring.mvcrestclient.model.Customer;
 import reichhorn.spring.mvcrestclient.repositories.CustomerRepository;
 
 import java.util.List;
@@ -46,5 +47,19 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findById(id)
                 .map(customerMapper::customerToCustomerDTO)
                 .orElseThrow(RuntimeException::new); // todo implement better exception handling if customer is not found
+    }
+
+    @Override
+    public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
+
+        Customer customer = customerMapper.customerDtoToCustomer(customerDTO);
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerDTO returnCustomerDTO = customerMapper.customerToCustomerDTO(savedCustomer);
+
+        returnCustomerDTO.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
+
+        return returnCustomerDTO;
     }
 }
