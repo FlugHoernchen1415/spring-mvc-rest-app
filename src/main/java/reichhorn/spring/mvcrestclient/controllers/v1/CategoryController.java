@@ -2,17 +2,16 @@ package reichhorn.spring.mvcrestclient.controllers.v1;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import reichhorn.spring.mvcrestclient.api.v1.model.CategoryDTO;
 import reichhorn.spring.mvcrestclient.api.v1.model.CategoryListDTO;
 import reichhorn.spring.mvcrestclient.services.CategoryService;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/categories/")
 public class CategoryController {
+
+    public static final String BASE_URL = "/api/v1/categories/";
 
     private final CategoryService categoryService;
 
@@ -22,17 +21,17 @@ public class CategoryController {
 
 
     @GetMapping
-    public ResponseEntity<CategoryListDTO> getAllCategories() {
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryListDTO getAllCategories() {
 
-        return new ResponseEntity<CategoryListDTO>(
-                new CategoryListDTO(categoryService.getAllCategories()), HttpStatus.OK);
+        return new CategoryListDTO(categoryService.getAllCategories());
     }
 
 
     @GetMapping("{name}")
-    public ResponseEntity<CategoryDTO> getCategoryByName(@PathVariable String name) {
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryDTO getCategoryByName(@PathVariable String name) {
 
-        return new ResponseEntity<CategoryDTO>(
-                categoryService.getCategoryByName(name), HttpStatus.OK);
+        return categoryService.getCategoryByName(name);
     }
 }

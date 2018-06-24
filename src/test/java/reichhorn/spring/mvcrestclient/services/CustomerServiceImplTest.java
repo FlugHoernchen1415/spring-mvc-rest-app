@@ -6,15 +6,20 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import reichhorn.spring.mvcrestclient.api.v1.mapper.CustomerMapper;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerDTO;
+import reichhorn.spring.mvcrestclient.controllers.v1.CustomerController;
 import reichhorn.spring.mvcrestclient.model.Customer;
 import reichhorn.spring.mvcrestclient.repositories.CustomerRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CustomerServiceImplTest {
@@ -25,7 +30,7 @@ public class CustomerServiceImplTest {
     CustomerRepository customerRepository;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         customerService = new CustomerServiceImpl(CustomerMapper.INSTANCE, customerRepository);
@@ -53,7 +58,7 @@ public class CustomerServiceImplTest {
         customer.setFirstname("Jon");
         customer.setLastname("Doe");
 
-        when(customerRepository.findCustomerByFirstname(anyString())).thenReturn(customer);
+        when(customerRepository.findCustomerByFirstname(anyString())).thenReturn(Optional.of(customer));
 
         // when
         CustomerDTO customerDTO = customerService.getCustomerByFirstname("Jon");
@@ -64,7 +69,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    public void createNewCustomer() throws Exception {
+    public void createNewCustomer() {
         // given
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setFirstname("Jon");
@@ -82,6 +87,37 @@ public class CustomerServiceImplTest {
 
         // then
         assertEquals(customerDTO.getFirstname(), savedDTO.getFirstname());
-        assertEquals("/api/v1/customer/1", savedDTO.getCustomerUrl());
+        assertEquals(CustomerController.BASE_URL + "1", savedDTO.getCustomerUrl());
+    }
+
+    @Test
+    public void saveCustomerByDTO() {
+        // given
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setFirstname("Jon");
+        customerDTO.setLastname("Doe");
+
+        Customer savedCustomer = new Customer();
+        savedCustomer.setFirstname(customerDTO.getFirstname());
+        savedCustomer.setLastname(customerDTO.getLastname());
+        savedCustomer.setId(1L);
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+
+        // when
+        CustomerDTO savedDTO = customerService.saveCustomerByDTO(1L, customerDTO);
+
+        // then
+        assertEquals(customerDTO.getFirstname(), savedDTO.getFirstname());
+        assertEquals(CustomerController.BASE_URL + "1", savedDTO.getCustomerUrl());
+    }
+
+    @Test
+    public void deleteCustomerById() {
+        Long id = 1L;
+
+        customerRepository.deleteById(id);
+
+        verify(customerRepository, times(1)).deleteById(anyLong());
     }
 }

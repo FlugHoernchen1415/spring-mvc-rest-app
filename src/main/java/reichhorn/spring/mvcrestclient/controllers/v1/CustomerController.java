@@ -1,16 +1,16 @@
 package reichhorn.spring.mvcrestclient.controllers.v1;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerDTO;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerListDTO;
 import reichhorn.spring.mvcrestclient.services.CustomerService;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/customers/")
 public class CustomerController {
+
+    public static final String BASE_URL = "/api/v1/customers/";
 
     private final CustomerService customerService;
 
@@ -20,27 +20,55 @@ public class CustomerController {
 
 
     @GetMapping
-    public ResponseEntity<CustomerListDTO> getAllCustomers() {
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerListDTO getAllCustomers() {
 
-        return new ResponseEntity<CustomerListDTO>(
-                new CustomerListDTO(customerService.getAllCustomers()), HttpStatus.OK);
+        return new CustomerListDTO(customerService.getAllCustomers());
     }
 
 
-    @GetMapping("{firstname}")
-    public ResponseEntity<CustomerDTO> getCustomerByFirstname(@PathVariable String firstname) {
+    @GetMapping("name/{firstname}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO getCustomerByFirstname(@PathVariable String firstname) {
 
-        return new ResponseEntity<CustomerDTO>(
-                customerService.getCustomerByFirstname(firstname), HttpStatus.OK);
+        return customerService.getCustomerByFirstname(firstname);
+    }
+
+    @GetMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO getCustomerById(@PathVariable Long id) {
+
+        return customerService.getCustomerById(id);
     }
 
     @PostMapping
-    public ResponseEntity<CustomerDTO> createNewCustomer(@RequestBody CustomerDTO customerDTO) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CustomerDTO createNewCustomer(@RequestBody CustomerDTO customerDTO) {
 
         // @RequestBody tells Spring to look at the body of the request
         // and parse it and try to create a customerDTO out of it
 
-        return new ResponseEntity<CustomerDTO>(
-                customerService.createNewCustomer(customerDTO), HttpStatus.CREATED);
+        return customerService.createNewCustomer(customerDTO);
+    }
+
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO customerDTO) {
+
+        return customerService.saveCustomerByDTO(id, customerDTO);
+    }
+
+    @PatchMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerDTO patchCustomer(@PathVariable Long id, @RequestBody CustomerDTO customerDTO) {
+
+        return customerService.patchCustomer(id, customerDTO);
+    }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteCustomer(@PathVariable Long id) {
+
+        customerService.deleteCustomerById(id);
     }
 }

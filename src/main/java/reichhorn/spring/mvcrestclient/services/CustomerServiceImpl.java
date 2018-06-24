@@ -3,6 +3,7 @@ package reichhorn.spring.mvcrestclient.services;
 import org.springframework.stereotype.Service;
 import reichhorn.spring.mvcrestclient.api.v1.mapper.CustomerMapper;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerDTO;
+import reichhorn.spring.mvcrestclient.controllers.v1.CustomerController;
 import reichhorn.spring.mvcrestclient.model.Customer;
 import reichhorn.spring.mvcrestclient.repositories.CustomerRepository;
 
@@ -28,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .stream()
                 .map(customer -> {
                     CustomerDTO customerDTO = customerMapper.customerToCustomerDTO(customer);
-                    customerDTO.setCustomerUrl("/api/v1/customer/" + customer.getId());
+                    customerDTO.setCustomerUrl(getCustomerUrl(customer.getId()));
                     return customerDTO;
                 })
                 .collect(Collectors.toList());
@@ -38,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerByFirstname(String firstname) {
 
         return customerMapper.customerToCustomerDTO(
-                customerRepository.findCustomerByFirstname(firstname));
+                customerRepository.findCustomerByFirstname(firstname).get());
     }
 
     @Override
@@ -46,20 +47,67 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerRepository.findById(id)
                 .map(customerMapper::customerToCustomerDTO)
-                .orElseThrow(RuntimeException::new); // todo implement better exception handling if customer is not found
+                .map(customerDTO -> {
+                    //set API URL
+                    customerDTO.setCustomerUrl(getCustomerUrl(id));
+                    return customerDTO;
+                })
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
     public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
 
-        Customer customer = customerMapper.customerDtoToCustomer(customerDTO);
+        return saveAndReturnDTO(customerMapper.customerDtoToCustomer(customerDTO));
+    }
 
+    private CustomerDTO saveAndReturnDTO(Customer customer) {
         Customer savedCustomer = customerRepository.save(customer);
 
-        CustomerDTO returnCustomerDTO = customerMapper.customerToCustomerDTO(savedCustomer);
+        CustomerDTO returnedCustomerDTO = customerMapper.customerToCustomerDTO(savedCustomer);
 
-        returnCustomerDTO.setCustomerUrl("/api/v1/customer/" + savedCustomer.getId());
+        returnedCustomerDTO.setCustomerUrl(getCustomerUrl(savedCustomer.getId()));
 
-        return returnCustomerDTO;
+        return returnedCustomerDTO;
+    }
+
+    @Override
+    public CustomerDTO saveCustomerByDTO(Long id, CustomerDTO customerDTO) {
+        Customer customer = customerMapper.customerDtoToCustomer(customerDTO);
+        customer.setId(id);
+
+        return saveAndReturnDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO patchCustomer(Long id, CustomerDTO customerDTO) {
+
+        // only update the properties that are passed in
+
+        return customerRepository.findById(id).map(customer -> {
+
+            if(customerDTO.getFirstname() != null) {
+                customer.setFirstname(customerDTO.getFirstname());
+            }
+
+            if(customerDTO.getLastname() != null) {
+                customer.setLastname(customerDTO.getLastname());
+            }
+
+            CustomerDTO returnedCustomerDTO = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
+
+            returnedCustomerDTO.setCustomerUrl(getCustomerUrl(id));
+
+            return returnedCustomerDTO;
+        }).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    @Override
+    public void deleteCustomerById(Long id) {
+        customerRepository.deleteById(id);
+    }
+
+    private String getCustomerUrl(Long id) {
+        return CustomerController.BASE_URL + id;
     }
 }
