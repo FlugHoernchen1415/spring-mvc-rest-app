@@ -26,9 +26,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static reichhorn.spring.mvcrestclient.controllers.v1.AbstractRestControllerTest.asJsonString;
 
-public class CustomerControllerTest {
+public class CustomerControllerTest extends AbstractRestControllerTest{
 
     @Mock
     CustomerService customerService;
@@ -143,7 +142,7 @@ public class CustomerControllerTest {
         returnedDTO.setLastname(customerDTO.getLastname());
         returnedDTO.setCustomerUrl(CustomerController.BASE_URL + "1");
 
-        when(customerService.saveCustomerByDTO(anyLong(), any(CustomerDTO.class))).thenReturn(returnedDTO);
+        when(customerService.updateCustomer(anyLong(), any(CustomerDTO.class))).thenReturn(returnedDTO);
 
         mockMvc.perform(put("/api/v1/customers/1")
                 .contentType(MediaType.APPLICATION_JSON)

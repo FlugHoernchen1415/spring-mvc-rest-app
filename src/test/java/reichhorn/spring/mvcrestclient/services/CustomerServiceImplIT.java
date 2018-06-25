@@ -12,6 +12,7 @@ import reichhorn.spring.mvcrestclient.bootstrap.Bootstrap;
 import reichhorn.spring.mvcrestclient.model.Customer;
 import reichhorn.spring.mvcrestclient.repositories.CategoryRepository;
 import reichhorn.spring.mvcrestclient.repositories.CustomerRepository;
+import reichhorn.spring.mvcrestclient.repositories.VendorRepository;
 
 import java.util.List;
 
@@ -31,15 +32,18 @@ public class CustomerServiceImplIT {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    VendorRepository vendorRepository;
+
     CustomerService customerService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         System.out.println("Loading Customer Data");
         System.out.println(customerRepository.findAll().size());
 
         // setup data for testing
-        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository);
+        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository, vendorRepository);
         bootstrap.run(); // load data
 
         customerService = new CustomerServiceImpl(CustomerMapper.INSTANCE, customerRepository);

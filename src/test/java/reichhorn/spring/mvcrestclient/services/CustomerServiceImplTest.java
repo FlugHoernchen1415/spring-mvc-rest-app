@@ -105,7 +105,7 @@ public class CustomerServiceImplTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
 
         // when
-        CustomerDTO savedDTO = customerService.saveCustomerByDTO(1L, customerDTO);
+        CustomerDTO savedDTO = customerService.updateCustomer(1L, customerDTO);
 
         // then
         assertEquals(customerDTO.getFirstname(), savedDTO.getFirstname());
