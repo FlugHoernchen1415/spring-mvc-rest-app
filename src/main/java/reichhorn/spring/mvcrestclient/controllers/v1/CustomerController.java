@@ -1,11 +1,14 @@
 package reichhorn.spring.mvcrestclient.controllers.v1;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerDTO;
 import reichhorn.spring.mvcrestclient.api.v1.model.CustomerListDTO;
 import reichhorn.spring.mvcrestclient.services.CustomerService;
 
+@Api(description = "This is the Customer Controller")
 @RestController
 @RequestMapping("/api/v1/customers/")
 public class CustomerController {
@@ -19,6 +22,7 @@ public class CustomerController {
     }
 
 
+    @ApiOperation(value = "Lists all the customers", notes = "Some notes about the API")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public CustomerListDTO getAllCustomers() {
